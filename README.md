@@ -3,52 +3,95 @@
 **Version:** 0.2.0  
 **Author:** Inventions4All - github:TWeb79
 
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-green.svg)](https://fastapi.tiangolo.com/)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 ## Project Overview
 
 KidsColorAI is a self-hosted web application that generates customizable coloring book pages for children. It combines generative text (stories) and generative art (line drawings) entirely on the local machine.
 
+- **Privacy-first**: All processing runs locally - no cloud dependencies
+- **Offline-capable**: Works after initial model downloads
+- **Customizable**: Themes, page counts, and image sizes configurable
+
+## Features
+
+- Generate black & white line art coloring pages
+- Create simple children's stories for each page
+- Export as PDF for printing
+- Interrupt generation on demand
+- Process images for clean line art output
+
 ## Service Ports
 
-| Port | Service |
-|------|---------|
-| 8046 | FastAPI web application (main UI) |
-| 8146 | FastAPI API service (optional) |
-| 8946 | Ollama LLM service |
+| Port | Service | Description |
+|------|---------|-------------|
+| 8046 | FastAPI web application | Main UI |
+| 8146 | FastAPI API service | If separated |
+| 8246 | SQLite database | File-based, no port |
+| 8946 | Ollama LLM service | Text generation |
 
-## Startup Instructions
+## Prerequisites
 
-### Prerequisites
 - Python 3.11+
-- Ollama installed and running (`ollama serve`)
-- Stable Diffusion WebUI running with API enabled (`--api` flag)
+- [Ollama](https://ollama.ai) installed and running (`ollama serve`)
+- [Stable Diffusion WebUI](https://github.com/AUTOMATIC1111/stable-diffusion-webui) with API enabled (`--api` flag)
 
-### Installation
+## Installation
+
 ```bash
+# Clone the repository
+git clone https://github.com/TWeb79/46-coloringbook.git
+cd 46-coloringbook
+
+# Install dependencies
 pip install -r requirements.txt
 ```
 
-### Running
+## Usage
+
+### Starting the Application
+
 ```bash
 python launch.py
 ```
 
-Or directly:
+Or directly with uvicorn:
+
 ```bash
 uvicorn app.main:app --port 8046
 ```
 
+Access the application at `http://localhost:8046`
+
+### Generating a Coloring Book
+
+1. Enter a theme (e.g., "Dinosaurs", "Space Adventures")
+2. Set the number of pages (default: 30)
+3. Choose image size (512x512, 768x768, or 1024x1024)
+4. Click "Generate Coloring Book"
+5. Wait for generation to complete
+6. Download the PDF or view individual pages
+
 ## Dependencies
 
-- fastapi - Web framework
-- uvicorn - ASGI server
-- SQLAlchemy - Database ORM
-- pillow - Image processing
-- httpx - HTTP client for async requests
+| Package | Version | Purpose |
+|---------|---------|---------|
+| fastapi | 0.115.0 | Web framework |
+| uvicorn | 0.30.6 | ASGI server |
+| SQLAlchemy | 2.0.35 | Database ORM |
+| pillow | 10.4.0 | Image processing |
+| httpx | 0.27.2 | HTTP client |
+| jinja2 | 3.1.4 | Template rendering |
 
-## API Endpoints
+## API Reference
 
 ### POST /api/generate
+
 Start a new coloring book generation.
+
+**Request Body:**
 ```json
 {
   "theme": "Dinosaurs",
@@ -57,24 +100,107 @@ Start a new coloring book generation.
 }
 ```
 
+**Response:**
+```json
+{
+  "id": 1,
+  "theme": "Dinosaurs",
+  "page_count": 30,
+  "status": "PENDING",
+  "created_at": "2026-05-25T12:00:00"
+}
+```
+
 ### GET /api/job/{job_id}
+
 Check generation status.
 
+**Response:**
+```json
+{
+  "job_id": 1,
+  "status": "COMPLETED",
+  "progress": 100,
+  "message": "Generation complete"
+}
+```
+
 ### GET /api/pages/{job_id}
-List generated pages.
+
+List generated pages with stories and image paths.
 
 ### GET /api/pdf/{job_id}
-Download generated coloring book as PDF.
+
+Download the complete coloring book as a PDF.
 
 ### POST /api/job/{job_id}/interrupt
-Interrupt an ongoing generation.
 
-### GET /output/{job_id}/{filename}
-Download generated images.
+Interrupt an ongoing generation (useful for stopping long-running jobs).
 
-## Example Request
+## Project Structure
+
+```
+46-coloringbook/
+├── app/
+│   ├── main.py              # FastAPI entry point
+│   ├── api/
+│   │   └── generate.py      # API routes
+│   ├── models/
+│   │   └── schemas.py       # Pydantic models
+│   ├── services/
+│   │   ├── ai_client.py     # Stable Diffusion wrapper
+│   │   └── ollama_client.py # Ollama API client
+│   ├── db/
+│   │   └── database.py      # SQLite models
+│   ├── utils/
+│   │   └── image_processor.py # Image utilities
+│   └── pdf_generator.py     # PDF generation
+├── templates/
+│   └── index.html           # Web UI
+├── static/
+│   ├── style.css            # Styles
+│   └── app.js               # Frontend logic
+├── tests/
+│   ├── test_api.py
+│   └── test_services.py
+├── launch.py                # Desktop entry point
+├── requirements.txt
+└── README.md
+```
+
+## Testing
+
 ```bash
-curl -X POST http://localhost:8046/api/generate \
-  -H "Content-Type: application/json" \
-  -d '{"theme": "Space Adventures", "page_count": 10}'
-```# coloringbookgenerator
+# Run tests
+pytest tests/
+
+# Run with coverage
+pytest --cov=app tests/
+```
+
+## License
+
+MIT License - see [LICENSE](LICENSE) file for details.
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## Troubleshooting
+
+**Ollama not responding:**
+- Ensure `ollama serve` is running
+- Check OLLAMA_HOST in `.env` matches your setup
+
+**Stable Diffusion not responding:**
+- Start SD WebUI with `--api --listen` flags
+- Verify SD_HOST in `.env` is correct
+
+**Generation taking too long:**
+- Reduce page count
+- Use smaller image size
+- Enable interrupt to stop and retry
