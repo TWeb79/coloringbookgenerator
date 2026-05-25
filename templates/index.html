@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KidsColorAI - Coloring Book Generator</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>KidsColorAI</h1>
+            <p class="version">v0.2.0 (2026-05-25)</p>
+        </header>
+
+        <main>
+            <section class="generator-form">
+                <h2>Create Your Coloring Book</h2>
+                <form id="generate-form">
+                    <div class="form-group">
+                        <label for="theme">Theme:</label>
+                        <input type="text" id="theme" name="theme"
+                               placeholder="e.g., Dinosaurs, Space Adventures" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="page-count">Number of Pages:</label>
+                        <input type="number" id="page-count" name="page_count"
+                               value="30" min="1" max="50">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="image-size">Image Size:</label>
+                        <select id="image-size" name="image_size">
+                            <option value="512">512x512</option>
+                            <option value="1024" selected>1024x1024</option>
+                            <option value="768">768x768</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" id="submit-btn">Generate Coloring Book</button>
+                </form>
+            </section>
+
+            <section id="status-section" class="hidden">
+                <h2>Generation Status</h2>
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div id="progress-fill"></div>
+                    </div>
+                    <p id="status-message">Starting...</p>
+                </div>
+                <button id="download-btn" class="hidden">Download PDF</button>
+            </section>
+
+            <section id="results-section" class="hidden">
+                <h2>Generated Pages</h2>
+                <div id="pages-grid" class="pages-grid"></div>
+            </section>
+        </main>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
