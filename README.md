@@ -204,3 +204,40 @@ MIT License - see [LICENSE](LICENSE) file for details.
 - Reduce page count
 - Use smaller image size
 - Enable interrupt to stop and retry
+
+## Docker Deployment
+
+### Prerequisites
+- Docker and Docker Compose installed
+- NVIDIA GPU with Docker GPU support (optional, for SD acceleration)
+
+### Running with Docker
+
+```bash
+# Start all services
+docker-compose up -d
+
+# View logs
+docker-compose logs -f web
+
+# Stop services
+docker-compose down
+```
+
+### Docker Volumes
+
+- `ollama-data`: Persistent Ollama model storage
+- `sd-data`: Stable Diffusion model storage
+- `./generated_books`: Generated coloring books (host-mounted)
+
+### Environment Variables
+
+Configure in `.env` or docker-compose.yml:
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| OLLAMA_HOST | http://ollama:11434 | Ollama API endpoint |
+| STABLE_DIFFUSION_HOST | http://sd-webui:7860 | SD WebUI API endpoint |
+| OUTPUT_DIR | /app/generated_books | Output directory |
+
+Access the application at `http://localhost:8046`

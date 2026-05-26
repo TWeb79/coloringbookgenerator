@@ -1,0 +1,13 @@
+services:
+  web:
+    build: .
+    container_name: 46-coloringbook-web
+    ports:
+      - "8046:8046"
+    environment:
+      - OLLAMA_HOST=http://host.docker.internal:11434
+      - STABLE_DIFFUSION_HOST=http://host.docker.internal:7860
+      - OUTPUT_DIR=/app/generated_books
+    volumes:
+      - ./generated_books:/app/generated_books
+    restart: unless-stopped

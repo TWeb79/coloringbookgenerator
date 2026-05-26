@@ -26,6 +26,8 @@ class GenerationJob(Base):
     finished_at = Column(DateTime, nullable=True)
 
     pages = relationship("Page", back_populates="job")
+    story_plan = relationship("StoryPlan", back_populates="job", uselist=False)
+    story_pages = relationship("StoryPage", back_populates="job")
 
 
 class Page(Base):
@@ -36,8 +38,36 @@ class Page(Base):
     story_text = Column(String)
     image_path = Column(String, nullable=False)
     prompt_used = Column(String)
+    image_prompt = Column(String, nullable=True)
 
     job = relationship("GenerationJob", back_populates="pages")
+
+
+class StoryPlan(Base):
+    __tablename__ = "story_plans"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    job_id = Column(Integer, ForeignKey("generation_jobs.id"))
+    character_name = Column(String)
+    character_description = Column(String)
+    character_appearance = Column(String)
+    character_personality = Column(String)
+    character_key_features = Column(String)
+    character_color_palette = Column(String)
+
+    job = relationship("GenerationJob", back_populates="story_plan")
+
+
+class StoryPage(Base):
+    __tablename__ = "story_pages"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    job_id = Column(Integer, ForeignKey("generation_jobs.id"))
+    page_number = Column(Integer)
+    story_text = Column(String)
+    image_prompt = Column(String)
+
+    job = relationship("GenerationJob", back_populates="story_pages")
 
 
 def init_db():
